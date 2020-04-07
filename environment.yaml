@@ -1,0 +1,29 @@
+name: disprcnn
+channels:
+  - anaconda
+  - conda-forge
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.7.4
+  - pytorch=1.2.0
+  - torchvision=0.4.0
+  - ipython
+  - pip
+  - pip:
+    - scipy
+    - tqdm
+    - fastai
+    - termcolor
+    - matplotlib
+    - numpy
+    - yacs
+    - numba
+    - Pillow<7
+    - PyYAML
+    - tensorboardX
+    - tensorboard
+    - zarr
+    - opencv-python
+    - pathlib2
+    - 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
