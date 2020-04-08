@@ -10,11 +10,12 @@ from tqdm import tqdm
 from disprcnn.data.datasets.kitti import KITTIObjectDataset
 from disprcnn.modeling.roi_heads.mask_head.inference import Masker
 from disprcnn.structures.segmentation_mask import SegmentationMask
+from disprcnn.utils.path import PROJECT_ROOT
 from disprcnn.utils.stereo_utils import expand_box_to_integer
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--output_dir', type=str,
-                    default=os.path.expanduser('~/Datasets/kitti/object/vob_pad_cs_dimreg_inf_roi_freex'))
+                    default='data/pob_roi')
 parser.add_argument('--mask_disp_sub_path', type=str, default='vob')
 parser.add_argument('--prediction_template', type=str,
                     default='models/kitti/vob/mask/inference/kitti_%s_vob_pad_cs_dimreg/predictions.pth')
@@ -25,7 +26,7 @@ def main():
     args = parser.parse_args()
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
-    root = os.path.expanduser('~/Datasets/kitti')
+    root = os.path.join(PROJECT_ROOT, 'data/kitti')
     splits = ['train', 'val']
     masker = Masker(args.masker_thresh)
     for split in splits:
@@ -66,7 +67,7 @@ def main():
                 assert roi_left_img.size == roi_right_img.size and \
                        roi_left_img.size == roi_disparity.shape[::-1], \
                     f'{roi_left_img.size} {roi_right_img.size} {roi_disparity.shape[::-1]}' \
-                        f'{x1, x1p, max_width}'
+                    f'{x1, x1p, max_width}'
                 roi_left_img.save(os.path.join(output_dir, split, 'image/left', str(wrote) + '.webp'))
                 roi_right_img.save(os.path.join(output_dir, split, 'image/right', str(wrote) + '.webp'))
                 zarr.convenience.save(os.path.join(output_dir, split, 'disparity', str(wrote) + '.zarr'),

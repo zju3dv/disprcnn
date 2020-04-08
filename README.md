@@ -26,7 +26,7 @@ sudo apt install libwebp-dev
 conda env create -f environment.yaml
 conda activate disprcnn
 # Install Disp R-CNN
-git clone https://github.com/zju3dv/disprcnn
+git clone https://github.com/zju3dv/disprcnn.git
 cd disprcnn
 sh build_and_install.sh
 ```

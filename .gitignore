@@ -146,3 +146,5 @@ cython_debug/
 
 # PyCharm directory
 .idea
+
+!disprcnn/modeling/pointnet_module/point_rcnn/lib

@@ -2,10 +2,11 @@
 """Centralized catalog of paths."""
 
 import os
+from disprcnn.utils.path import PROJECT_ROOT
 
 
 class DatasetCatalog(object):
-    DATA_DIR = os.path.join(os.environ['HOME'], 'Datasets')
+    DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
     DATASETS = {
         "kitti_train_pob": {
             "data_dir": "kitti",

@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 from tqdm import tqdm
+from disprcnn.utils.path import PROJECT_ROOT
 
 
 def write_txt(dataset, predictions, output_folder):
@@ -40,7 +41,10 @@ def write_txt(dataset, predictions, output_folder):
         final_msg += '%.1f\n' % iou_thresh
         from termcolor import colored
         print(colored(f'-----using iou thresh{iou_thresh}------', 'red'))
-        eval_command = f'{os.path.expanduser(f"~/bin/kitti_evaluation_lib/evaluate_object_{iou_thresh}")} {output_folder} {os.path.expanduser("~/Datasets/kitti/object/training/label_2")}'
+        binary = os.path.join(PROJECT_ROOT, 'tools/kitti_object/kitti_evaluation_lib/evaluate_object_') + str(
+            iou_thresh)
+        gt_dir = os.path.join(PROJECT_ROOT, 'data/kitti/object/training/label_2')
+        eval_command = f'{binary} {output_folder} {gt_dir}'
         os.system(eval_command)
         with open(os.path.join(output_folder, 'stats_car_detection.txt')) as f:
             lines = np.array(
@@ -84,4 +88,3 @@ def do_kitti_evaluation(
         eval_bbox3d,
 ):
     write_txt(dataset, left_predictions, output_folder)
-

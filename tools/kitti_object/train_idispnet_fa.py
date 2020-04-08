@@ -19,7 +19,7 @@ from disprcnn.modeling.psmnet.stackhourglass import PSMNet
 from disprcnn.utils.loss_utils import PSMLoss
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', type=str, default=os.path.expanduser('~/Datasets/kitti/object/pob_roi_freex'))
+parser.add_argument('--data_dir', type=str, default='data/pob_roi')
 parser.add_argument('--mode', type=str, default='train')
 parser.add_argument('--local_rank', type=int, default=0)
 parser.add_argument('--epochs', type=int, default=100)

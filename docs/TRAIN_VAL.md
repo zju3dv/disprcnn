@@ -14,7 +14,7 @@
    ```
 2. Download segmentation mask and disparity pseudo-ground-truth from [here](https://drive.google.com/drive/folders/1Zjm0neWfIunXMafyBrB2x66K6yB0Ca6e).
 As described in the paper, we generate two types of pseudo-ground-truth: with and without the LiDAR points. These two variants of pseudo-GT correspond to *pob* and *vob* in the following experiments, respectively.
-   
+  
    ```bash
    tar -xvf pob.tar.gz
    mv pob data/kitti/object/training/
@@ -29,16 +29,22 @@ To run the *vob* version, replace *vob* with *pob* in every bash script.
 
 Note that the current implementation cannot exit itself automatically, see [Notes](#Notes) for details.
 
-1. train Stereo Mask R-CNN.<br>
-    Download pretrained Stereo R-CNN in Mask R-CNN format from [here](https://drive.google.com/open?id=1PCl94kXSeJeoToS6s0JJ4Zfiu98ukkMd), and put it in `models/kitti/disprcnn_R101_FPN_2d_srcnn_ckpt` directory.
-    
-    Then train the Stereo Mask R-CNN with the following command.
+1. Define the number of GPUs.
     
     ```bash
-       sh scripts/train_msrcnn.sh # This step cost ~2 hours using 4 GPUs.
+    export NGPUS=8
+    ```
+    
+2. train Stereo Mask R-CNN.<br>
+    Download pretrained Stereo R-CNN in Mask R-CNN format from [here](https://drive.google.com/open?id=1PCl94kXSeJeoToS6s0JJ4Zfiu98ukkMd), and put it in `models/kitti/disprcnn_R101_FPN_2d_srcnn_ckpt` directory.
+
+    Then train the Stereo Mask R-CNN with the following command.
+
+    ```bash
+    sh scripts/train_msrcnn.sh # This step cost ~2 hours using 4 GPUs.
     ```
 
-2. train iDispNet.<br>
+3. train iDispNet.<br>
    Download `pretrained_model_KITTI2015.tar` from [here](https://drive.google.com/file/d/1pHWjmhKMG4ffCrpcsp_MTXMJXhgl3kF9/view) and put it in `models/PSMNet` directory.
 
    We use the fast.ai framework to train the iDispNet as in `train_idispnet_fa.py`. The training script without this dependency is also provided in `train_idispnet.py`.
@@ -47,21 +53,21 @@ Note that the current implementation cannot exit itself automatically, see [Note
    sh scripts/train_idispnet.sh # This step cost ~8 hours using 8 GPUs.
    ```
 
-3. train RPN
+4. train RPN
    ```bash
    sh scripts/train_rpn.sh # This step cost ~5 hours using 8 GPUs.
    ```
 
-4. train RCNN
+5. train RCNN
    ```bash
    sh scripts/train_rcnn.sh # This step cost ~13 hours using 8 GPUs.
    ```
 
-5. evaluate RCNN
+6. evaluate RCNN
    ```bash
    sh scripts/eval_rcnn.sh # This step cost ~2min using 8 GPUs.
    ```
-   
+
 ## Evaluate with our trained model
 
 The released models are trained on the training split of the KITTI object training set.
@@ -74,6 +80,7 @@ When you have multiple GPUs with more than 12G memory (e.g. RTX TITAN/V100), run
 
    ```bash
    # distributed inference with multiple GPUs.
+   export NGPUS=8 
    sh scripts/eval_with_trained_model_dist.sh
    # inference with one GPU.
    sh scripts/eval_with_trained_model.sh

@@ -15,9 +15,5 @@ python setup.py install
 
 cd ../../../../../../../
 
-# optional, for easy evaluation.
-
-# mkdir -p ~/bin/
-# cp -r tools/kitti_object/kitti_evaluation_lib ~/bin/
-# chmod +x ~/bin/kitti_evaluation_lib/evaluate_object_0.5
-# chmod +x ~/bin/kitti_evaluation_lib/evaluate_object_0.7
+chmod +x tools/kitti_object/kitti_evaluation_lib/evaluate_object_0.5
+chmod +x tools/kitti_object/kitti_evaluation_lib/evaluate_object_0.7
