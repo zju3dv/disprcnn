@@ -22,12 +22,13 @@ Authors: Jiaming Sun, Linghao Chen, Yiming Xie, Siyu Zhang, Qinhong Jiang, Hujun
 ```bash
 # Install webp support
 sudo apt install libwebp-dev
+# Clone repo
+git clone https://github.com/zju3dv/disprcnn.git
+cd disprcnn
 # Install conda environment
 conda env create -f environment.yaml
 conda activate disprcnn
 # Install Disp R-CNN
-git clone https://github.com/zju3dv/disprcnn.git
-cd disprcnn
 sh build_and_install.sh
 ```
 
