@@ -1,6 +1,6 @@
 # Disp R-CNN: Stereo 3D Object Detection via Shape Prior Guided Instance Disparity Estimation (CVPR 2020)
 
-This project contains the implementation of our CVPR 2020 paper **LINK TO BE ADDED**.
+This project contains the implementation of our CVPR 2020 paper [arxiv](https://arxiv.org/pdf/2004.03572.pdf).
 
 Authors: Jiaming Sun, Linghao Chen, Yiming Xie, Siyu Zhang, Qinhong Jiang, Hujun Bao, Xiaowei Zhou.
 
