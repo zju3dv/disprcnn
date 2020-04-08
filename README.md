@@ -60,7 +60,6 @@ This repo is built based on the Mask R-CNN implementation from [maskrcnn-benchma
 
 
 ## License
-MIT
 
 Copyright (c) 2020 3D Vision Group of State Key Lab at CAD&CG, Zhejiang University
 
