@@ -2,7 +2,7 @@
 
 This project contains the implementation of our CVPR 2020 paper [arxiv](https://arxiv.org/pdf/2004.03572.pdf).
 
-Authors: Jiaming Sun, Linghao Chen, Yiming Xie, Siyu Zhang, Qinhong Jiang, Hujun Bao, Xiaowei Zhou.
+Authors: Jiaming Sun, Linghao Chen, Yiming Xie, Siyu Zhang, Qinhong Jiang, Xiaowei Zhou, Hujun Bao.
 
 <img src="docs/arch0328.png" width = 100% div align=left />
 
