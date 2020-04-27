@@ -59,7 +59,9 @@ If you find this code useful for your research, please use the following BibTeX 
 This repo is built based on the Mask R-CNN implementation from [maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark), and we also use the pretrained Stereo R-CNN weight from [here](https://drive.google.com/file/d/1rZ5AsMms7-oO-VfoNTAmBFOr8O2L0-xt/view?usp=sharing) for initialization.
 
 
-## License
+## Copyright
+This work is affliated with ZJU-SenseTime Joint Lab of 3D Vision, and its intellectual property belongs to SenseTime Group Ltd.
+
 ```
 Copyright SenseTime. All Rights Reserved.
 
