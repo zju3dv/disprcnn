@@ -12,6 +12,7 @@
    │  │  │  ├─ testing
    │  │  │     ├─ calib & image_2 & image_3
    ```
+   We have uploaded label_3 to [here](https://drive.google.com/open?id=1KRy7LnMPagIOvoksuYVouAPK8yoaqnnL).
 2. Download segmentation mask and disparity pseudo-ground-truth from [here](https://drive.google.com/drive/folders/1UjHQDs1tU_TQaWsLgAXMEdjY-ioSfOa5).
 As described in the paper, we generate two types of pseudo-ground-truth: with and without the LiDAR points. These two variants of pseudo-GT correspond to *vob* and *pob* in the following experiments, respectively.
   
