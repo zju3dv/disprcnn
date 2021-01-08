@@ -89,7 +89,7 @@ When you have multiple GPUs with more than 12G memory (e.g. RTX TITAN/V100), run
 
 ## Notes
 
-1. Setting num_workers>0 could speed up training and inference a lot, but due to some bugs in PyTorch, training won't finish all iterations, and inference won't exit automatically after printing out results. You should interrupt the program manually by "Ctrl+C" when training stucks at the end or inference has printed out results. If GPU memories are not released after interrupting, use the following command to release GPU memories. This can be potentially fixed via switching the distributed launcher to [`mp.spawn`](https://github.com/facebookresearch/detectron2/blob/master/detectron2/engine/launch.py#L45).
+1. Setting num_workers>0 could speed up training and inference by a large margin. However, due to some bugs in PyTorch, the training process will hang itself after finishing all the iterations. Similarly, inference won't exit automatically after printing out results. You should interrupt the program manually by "Ctrl+C" when training stucks at the end or inference has printed out results. You can validate if the training is finished by checking the ETA (`eta: 0:00:02`) at the last iteration. If the GPU memory is not released after manual interrupting, use the following command to release GPU memory. This imperfection can be potentially fixed via switching the distributed launcher to [`mp.spawn`](https://github.com/facebookresearch/detectron2/blob/master/detectron2/engine/launch.py#L45).
 
    ```bash
    pkill -e -9 python -u $USER
