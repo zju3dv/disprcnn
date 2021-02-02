@@ -1,28 +1,20 @@
 MODEL:
   META_ARCHITECTURE: "DispRCNN3D"
-  DISPNET:
-    MAX_DISP: 48
-    MIN_DISP: -48
-    RESOLUTIONS: (224,)
-    LOSS_WEIGHT: 0.05
-#    TRAINED_MODEL: "models/kitti/vob/roi_disp/bestmodel.pth"
   POINTRCNN:
     MASK_THRESH: 0.5
     AUG_DATA: True
-    MEAN_SIZE: [[1.52563191462, 1.62856739989, 3.88311640418]]
+    MEAN_SIZE: [[ 1.76070649, 0.66018944, 0.84228438]]
     RPN:
       LOSS_CLS: BinaryCrossEntropy
       SA_CONFIG:
         NPOINTS: [768, 512, 256, 64]
-  #      LOSS_WEIGHT: [1.0, 0.2]
   MASK_ON: True
   STEREO_ON: True
   DET3D_ON: True
   DISPNET_ON: False
 DATASETS:
-  TRAIN: ("kitti_train_pob", )
-  TEST: ("kitti_val_pob",)
-#  TEST: ("kitti_train_vob", "kitti_val_vob",)
+  TRAIN: ("kitti_train_vob_pedestrian", )
+  TEST: ("kitti_val_vob_pedestrian",)
 DATALOADER:
   SIZE_DIVISIBILITY: 1
   NUM_WORKERS: 8
@@ -34,7 +26,6 @@ SOLVER:
   IMS_PER_BATCH: 3
   TRAIN_PSM: False
   TRAIN_PC: True
-#  UNCERT_LOSS_WEIGHT: 2
   LOAD_OPTIMIZER: False
   LOAD_SCHEDULER: False
   FIX_DISPARITY: True
@@ -43,13 +34,14 @@ SOLVER:
   ALLOW_EXCEPTION: True
   DO_GRAD_CLIP: True
   REMOVE_EMPTY_ANNOTATIONS_TRAIN: False
-  OFFLINE_2D_PREDICTIONS: "models/kitti/pob/idispnet/inference/kitti_%s_pob/predictions"
+  OFFLINE_2D_PREDICTIONS: "models/kitti/pedestrian/vob/idispnet/inference/kitti_%s_vob_pedestrian/predictions"
   CHECKPOINT_PERIOD: 138
 TEST:
   IMS_PER_BATCH: 1
 OUTPUT_DIR:
-  "models/kitti/pob/rpn"
+  "models/kitti/pedestrian/vob/rpn"
 INPUT:
+  DO_RESIZE: False
   FLIP_PROB_TRAIN: 0.0
   MIN_SIZE_TRAIN: (600,)
   MAX_SIZE_TRAIN: 10000

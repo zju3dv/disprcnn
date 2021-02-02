@@ -1,4 +1,3 @@
-# we have a splited trained psmnet, but we also have d3d, this config helps train psmnet in d3d framework.
 MODEL:
   META_ARCHITECTURE: "DispRCNN3D"
   DISPNET:
@@ -6,44 +5,49 @@ MODEL:
     MIN_DISP: -48
     RESOLUTIONS: (224,)
     LOSS_WEIGHT: 0.05
-    MAX_ROI_FOR_TRAINING: 12
-    ROI_MIN_SCORE: 0.5
-    TRAINED_MODEL: "models/kitti/vob/idispnet/bestmodel.pth"
   POINTRCNN:
+    MASK_THRESH: 0.5
+    AUG_DATA: True
     MEAN_SIZE: [[1.52563191462, 1.62856739989, 3.88311640418]]
     RPN:
       LOSS_CLS: BinaryCrossEntropy
-  #      LOSS_WEIGHT: [1.0, 0.2]
+      SA_CONFIG:
+        NPOINTS: [768, 512, 256, 64]
   MASK_ON: True
   STEREO_ON: True
-  DET3D_ON: False
+  DET3D_ON: True
+  DISPNET_ON: False
 DATASETS:
-  TRAIN: ("kitti_train_vob", )
-  TEST: ("kitti_train_vob", "kitti_val_vob")
+  TRAIN: ("kitti_train_vob_car", )
+  TEST: ("kitti_val_vob_car",)
 DATALOADER:
   SIZE_DIVISIBILITY: 1
-  NUM_WORKERS: 0
+  NUM_WORKERS: 8
 SOLVER:
   BASE_LR: 0.01
   WEIGHT_DECAY: 0.0001
   SCHEDULER: OneCycleScheduler
-  MAX_ITER: 41000
-  IMS_PER_BATCH: 2
-  TRAIN_PSM: True
-  TRAIN_PC: False
+  MAX_ITER: 27600
+  IMS_PER_BATCH: 3
+  TRAIN_PSM: False
+  TRAIN_PC: True
   LOAD_OPTIMIZER: False
   LOAD_SCHEDULER: False
+  FIX_DISPARITY: True
   PRINT_INTERVAL: 1
   PRINT_ITERATION: False
+  ALLOW_EXCEPTION: True
+  DO_GRAD_CLIP: True
   REMOVE_EMPTY_ANNOTATIONS_TRAIN: False
-  OFFLINE_2D_PREDICTIONS: "models/kitti/vob/mask/inference/kitti_%s_vob/predictions"
-  CHECKPOINT_PERIOD: 410
+  OFFLINE_2D_PREDICTIONS: "models/kitti/car/vob/idispnet/inference/kitti_%s_vob_car/predictions"
+  CHECKPOINT_PERIOD: 138
 TEST:
-  IMS_PER_BATCH: 4
+  IMS_PER_BATCH: 1
 OUTPUT_DIR:
-  "models/kitti/vob/idispnet"
+  "models/kitti/car/vob/rpn"
 INPUT:
   FLIP_PROB_TRAIN: 0.0
+  DO_RESIZE: False
   MIN_SIZE_TRAIN: (600,)
   MAX_SIZE_TRAIN: 10000
   MIN_SIZE_TEST: 600

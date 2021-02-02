@@ -1,4 +1,3 @@
-# we have a splited trained psmnet, but we also have d3d, this config helps train psmnet in d3d framework.
 MODEL:
   META_ARCHITECTURE: "DispRCNN3D"
   DISPNET:
@@ -8,21 +7,16 @@ MODEL:
     LOSS_WEIGHT: 0.05
     MAX_ROI_FOR_TRAINING: 12
     ROI_MIN_SCORE: 0.5
-    TRAINED_MODEL: "models/kitti/pob/idispnet/bestmodel.pth"
-  POINTRCNN:
-    MEAN_SIZE: [[1.52563191462, 1.62856739989, 3.88311640418]]
-    RPN:
-      LOSS_CLS: BinaryCrossEntropy
-  #      LOSS_WEIGHT: [1.0, 0.2]
+    TRAINED_MODEL: "models/kitti/pedestrian/vob/idispnet/bestmodel.pth"
   MASK_ON: True
   STEREO_ON: True
   DET3D_ON: False
 DATASETS:
-  TRAIN: ("kitti_train_pob", )
-  TEST: ("kitti_train_pob", "kitti_val_pob")
+  TRAIN: ("kitti_train_vob_pedestrian", )
+  TEST: ("kitti_val_vob_pedestrian",)
 DATALOADER:
   SIZE_DIVISIBILITY: 1
-  NUM_WORKERS: 0
+  NUM_WORKERS: 8
 SOLVER:
   BASE_LR: 0.01
   WEIGHT_DECAY: 0.0001
@@ -36,13 +30,14 @@ SOLVER:
   PRINT_INTERVAL: 1
   PRINT_ITERATION: False
   REMOVE_EMPTY_ANNOTATIONS_TRAIN: False
-  OFFLINE_2D_PREDICTIONS: "models/kitti/pob/mask/inference/kitti_%s_pob/predictions"
+  OFFLINE_2D_PREDICTIONS: "models/kitti/pedestrian/R101_FPN_mask_rcnn_v2/inference/kitti_%s_vob_pedestrian/predictions"
   CHECKPOINT_PERIOD: 410
 TEST:
-  IMS_PER_BATCH: 4
+  IMS_PER_BATCH: 1
 OUTPUT_DIR:
-  "models/kitti/pob/idispnet"
+  "models/kitti/pedestrian/vob/idispnet"
 INPUT:
+  DO_RESIZE: False
   FLIP_PROB_TRAIN: 0.0
   MIN_SIZE_TRAIN: (600,)
   MAX_SIZE_TRAIN: 10000

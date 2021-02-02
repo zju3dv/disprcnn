@@ -1,6 +1,6 @@
 MODEL:
   META_ARCHITECTURE: "DispRCNN"
-  WEIGHT: "models/kitti/disprcnn_R101_FPN_2d_srcnn_ckpt/srcnn_pretrained_2d_mrcnn_format.pth"
+  WEIGHT: "models/kitti/car/srcnn_pretrained_2d_mrcnn_format.pth"
   BACKBONE:
     CONV_BODY: "R-101-FPN"
   RESNETS:
@@ -42,8 +42,8 @@ MODEL:
   STEREO_ON: True
   DISPNET_ON: False
 DATASETS:
-  TRAIN: ("kitti_train_vob", )
-  TEST: ("kitti_train_vob", "kitti_val_vob")
+  TRAIN: ("kitti_train_pob_car", )
+  TEST: ("kitti_train_pob_car", "kitti_val_pob_car")
 DATALOADER:
   SIZE_DIVISIBILITY: 0
   NUM_WORKERS: 4
@@ -53,26 +53,12 @@ SOLVER:
 #  when bsz*gpu=1
   BASE_LR: 0.01
   SCHEDULER: OneCycleScheduler
-#  STEPS: (16300, )
   MAX_ITER: 4140
   IMS_PER_BATCH: 4
-#  #######
-#  when bsz*gpu=4
-#  BASE_LR: 0.004
-#  STEPS: (4640, 9280, 13920)
-#  MAX_ITER: 18560
-#  IMS_PER_BATCH: 4
-#  #######
-# when bsz*gpu=16
-#  BASE_LR: 0.016
-#  STEPS: (1160, 2320, 3480)
-#  MAX_ITER: 4640
-#  IMS_PER_BATCH: 4
 
   TRAIN_PSM: False
   LOAD_OPTIMIZER: False
   LOAD_SCHEDULER: False
-#  WARMUP_ITERS: 94
   CHECKPOINT_PERIOD: 207
   UNCERT_LOSS_WEIGHT: 0
   GRAD_CLIP: 10.0
@@ -85,11 +71,10 @@ SOLVER:
 TEST:
   IMS_PER_BATCH: 4
 OUTPUT_DIR:
-  "models/kitti/vob/mask"
+  "models/kitti/car/pob/mask"
 INPUT:
   FLIP_PROB_TRAIN: 0.0
   MIN_SIZE_TRAIN: (600,)
   MAX_SIZE_TRAIN: 10000
   MIN_SIZE_TEST: 600
   MAX_SIZE_TEST: 10000
-#  TO_BGR255: False

@@ -5,24 +5,32 @@ MODEL:
     MIN_DISP: -48
     RESOLUTIONS: (224,)
     LOSS_WEIGHT: 0.05
-#    TRAINED_MODEL: "models/kitti/vob/roi_disp/bestmodel.pth"
   POINTRCNN:
     MASK_THRESH: 0.5
     AUG_DATA: True
     MEAN_SIZE: [[1.52563191462, 1.62856739989, 3.88311640418]]
     RPN:
+      FIXED: True
       LOSS_CLS: BinaryCrossEntropy
-      SA_CONFIG:
-        NPOINTS: [768, 512, 256, 64]
-  #      LOSS_WEIGHT: [1.0, 0.2]
+    RCNN:
+      ENABLED: True
+      CLS_FG_THRESH: 0.60
+      REG_FG_THRESH: 0.55
+      LOSS_CLS: BinaryCrossEntropy
+      ROI_PER_IMAGE: 16
+    TRAIN:
+      RPN_PRE_NMS_TOP_N: 9000
+      RPN_POST_NMS_TOP_N: 512
+    TEST:
+      RPN_PRE_NMS_TOP_N: 9000
+      RPN_POST_NMS_TOP_N: 100
   MASK_ON: True
   STEREO_ON: True
   DET3D_ON: True
   DISPNET_ON: False
 DATASETS:
-  TRAIN: ("kitti_train_vob", )
-  TEST: ("kitti_val_vob",)
-#  TEST: ("kitti_train_vob", "kitti_val_vob",)
+  TRAIN: ("kitti_train_pob_car", )
+  TEST: ("kitti_val_pob_car",)
 DATALOADER:
   SIZE_DIVISIBILITY: 1
   NUM_WORKERS: 8
@@ -30,27 +38,28 @@ SOLVER:
   BASE_LR: 0.01
   WEIGHT_DECAY: 0.0001
   SCHEDULER: OneCycleScheduler
-  MAX_ITER: 27600
-  IMS_PER_BATCH: 3
+  MAX_ITER: 62100
+  IMS_PER_BATCH: 1
   TRAIN_PSM: False
   TRAIN_PC: True
-#  UNCERT_LOSS_WEIGHT: 2
   LOAD_OPTIMIZER: False
   LOAD_SCHEDULER: False
   FIX_DISPARITY: True
+  FIX_POINTRCNN_RPN: True
   PRINT_INTERVAL: 1
   PRINT_ITERATION: False
   ALLOW_EXCEPTION: True
   DO_GRAD_CLIP: True
   REMOVE_EMPTY_ANNOTATIONS_TRAIN: False
-  OFFLINE_2D_PREDICTIONS: "models/kitti/vob/idispnet/inference/kitti_%s_vob/predictions"
-  CHECKPOINT_PERIOD: 138
+  OFFLINE_2D_PREDICTIONS: "models/kitti/car/pob/idispnet/inference/kitti_%s_pob_car/predictions"
+  CHECKPOINT_PERIOD: 414
 TEST:
   IMS_PER_BATCH: 1
 OUTPUT_DIR:
-  "models/kitti/vob/rpn"
+  "models/kitti/car/pob/rcnn"
 INPUT:
   FLIP_PROB_TRAIN: 0.0
+  DO_RESIZE: False
   MIN_SIZE_TRAIN: (600,)
   MAX_SIZE_TRAIN: 10000
   MIN_SIZE_TEST: 600
