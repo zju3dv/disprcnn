@@ -13,7 +13,7 @@ dependencies:
   - pip:
     - scipy
     - tqdm
-    - fastai
+    - fastai==1.0.60
     - termcolor
     - matplotlib
     - numpy

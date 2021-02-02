@@ -60,10 +60,10 @@ Note that the current implementation cannot exit itself automatically, see [Note
     Then train the Stereo Mask R-CNN with the following command.
 
 	```bash
-	sh scripts/train_smrcnn.sh # This step cost ~1.5 hours using 4 GPUs.
+	sh scripts/car/vob/train_smrcnn.sh # This step cost ~1.5 hours using 4 GPUs.
 	```
 
-​		For the **pedestrian** and **cyclist** categories, we provide 2D predictions. Download them instead of training them by yourself.
+​		For the **pedestrian** and **cyclist** categories, we provide 2D predictions, you can download them instead of training by yourself.
 
   ```bash
     sh scripts/download/model/pedestrian_2d.sh
@@ -71,24 +71,28 @@ Note that the current implementation cannot exit itself automatically, see [Note
   ```
 
 3. train iDispNet.<br>
-   Download `pretrained_model_KITTI2015.tar` from [here](https://drive.google.com/file/d/1pHWjmhKMG4ffCrpcsp_MTXMJXhgl3kF9/view) and put it in `models/PSMNet` directory.
-
-We use the fast.ai framework to train the iDispNet as in `train_idispnet_fa.py`. 
+   Download `pretrained_model_KITTI2015.tar`
+   
+   ```bash
+   sh scripts/download/model/pretrained_psmnet.sh
+   ```
+   
+   We use the fast.ai framework to train the iDispNet as in `train_idispnet_fa.py`. 
 
 ```bash
-sh scripts/train_idispnet.sh # This step cost ~8 hours using 8 GPUs.
+sh scripts/car/vob/train_idispnet.sh # This step cost ~8 hours using 8 GPUs.
 ```
 
 
 4. train RPN
    ```bash
-   sh scripts/train_rpn.sh # This step cost ~5 hours using 8 GPUs.
+   sh scripts/car/vob/train_rpn.sh # This step cost ~5 hours using 8 GPUs.
    ```
 
 
 5. train RCNN
    ```bash
-   sh scripts/train_rcnn.sh # This step cost ~13 hours using 8 GPUs.
+   sh scripts/car/vob/train_rcnn.sh # This step cost ~13 hours using 8 GPUs.
    ```
 
 
