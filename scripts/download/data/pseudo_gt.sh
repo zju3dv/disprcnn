@@ -13,7 +13,7 @@ rm data/kitti/object/training/vob/car_vob.zip
 # kins_mask_for pedestrian and cyclist
 gdown --id 156SKS_kaShRvzSDcSLNf5mPL_jsySS23 -O data/kitti/object/training/
 mkdir -p data/kitti/object/training/kins_mask_2/
-unzip data/kitti/object/training/kins_mask_2.zip -d data/kitti/object/training/kins_mask_2
+unzip data/kitti/object/training/kins_mask_2.zip -d data/kitti/object/training/
 rm data/kitti/object/training/kins_mask_2.zip
 
 #pedestrian-pob
