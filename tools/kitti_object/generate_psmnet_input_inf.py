@@ -30,7 +30,7 @@ def main():
     args = parser.parse_args()
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
-    root = os.path.expanduser('~/Datasets/kitti')
+    root = 'data/kitti'
     roi_align = ROIAlign((224, 224), 1.0, 0)
     if args.splits == 'trainval':
         splits = ['train', 'val']
@@ -51,7 +51,7 @@ def main():
             ds = KITTIObjectDatasetPedestrian(root, split, filter_empty=False,
                                               shape_prior_base=args.shape_prior_base)
         else:  # cyclist
-            ds = KITTIObjectDatasetCyclist(root, split, filter_empty=False, shape_prior_base=args.shape_prior_base)
+            ds = KITTIObjectDatasetCyclist(root, split, filter_empty=False, shape_prior_base='notused')
 
         wrote = 0
         assert len(left_predictions) == len(ds)

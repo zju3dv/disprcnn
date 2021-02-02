@@ -1,3 +1,4 @@
+import os.path as osp
 import numpy as np
 import os
 import pickle
@@ -297,6 +298,7 @@ class KITTIObjectDatasetCyclist(torch.utils.data.Dataset):
         if split == 'training':
             path = os.path.join(self.root, 'object', split, 'cyclist_disparity_2',
                                 imgid + '.png')
+            assert osp.exists(path), path
             disp = cv2.imread(path, 2).astype(np.float32) / 256
             disp = DisparityMap(disp)
         else:

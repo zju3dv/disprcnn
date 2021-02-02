@@ -13,7 +13,7 @@ MODEL:
   DET3D_ON: False
 DATASETS:
   TRAIN: ("kitti_train_cyclist", )
-  TEST: ("kitti_val_cyclist",)
+  TEST: ("kitti_train_cyclist", "kitti_val_cyclist",)
 DATALOADER:
   SIZE_DIVISIBILITY: 1
   NUM_WORKERS: 8
