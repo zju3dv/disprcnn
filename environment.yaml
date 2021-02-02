@@ -26,4 +26,5 @@ dependencies:
     - zarr
     - opencv-python
     - pathlib2
+    - gdown
     - 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
