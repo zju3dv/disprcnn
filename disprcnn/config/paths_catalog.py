@@ -8,56 +8,88 @@ from disprcnn.utils.path import PROJECT_ROOT
 class DatasetCatalog(object):
     DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
     DATASETS = {
-        "kitti_train_pob": {
+        "kitti_train_pob_car": {
             "data_dir": "kitti",
-            "split": "train"
+            "split": "train",
+            'shape_prior_base': 'pob'
         },
-        "kitti_val_pob": {
+        "kitti_val_pob_car": {
             "data_dir": "kitti",
-            "split": "val"
+            "split": "val",
+            'shape_prior_base': 'pob'
         },
-        "kitti_test_pob": {
+        "kitti_train_vob_car": {
             "data_dir": "kitti",
-            "split": "test"
+            "split": "train",
+            'shape_prior_base': 'vob'
         },
-        "kitti_train_vob": {
+        "kitti_val_vob_car": {
             "data_dir": "kitti",
-            "split": "train"
+            "split": "val",
+            'shape_prior_base': 'vob'
         },
-        "kitti_val_vob": {
+        "kitti_train_vob_pedestrian": {
             "data_dir": "kitti",
-            "split": "val"
+            "split": "train",
+            'shape_prior_base': 'vob'
         },
-        "kitti_test_vob": {
+        "kitti_val_vob_pedestrian": {
             "data_dir": "kitti",
-            "split": "test"
+            "split": "val",
+            'shape_prior_base': 'vob'
+        },
+        "kitti_train_pob_pedestrian": {
+            "data_dir": "kitti",
+            "split": "train",
+            'shape_prior_base': 'pob'
+        },
+        "kitti_val_pob_pedestrian": {
+            "data_dir": "kitti",
+            "split": "val",
+            'shape_prior_base': 'pob'
+        },
+        "kitti_train_cyclist": {
+            "data_dir": "kitti",
+            "split": "train",
+            'shape_prior_base': 'notused'
+        },
+        "kitti_val_cyclist": {
+            "data_dir": "kitti",
+            "split": "val",
+            'shape_prior_base': 'notused'
         },
     }
 
     @staticmethod
     def get(name):
-        if 'kitti' in name and 'vob' in name:
-            root = DatasetCatalog.DATA_DIR
-            attrs = DatasetCatalog.DATASETS[name]
-            args = dict(
-                root=os.path.join(root, attrs["data_dir"]),
-                split=attrs["split"],
-            )
+        root = DatasetCatalog.DATA_DIR
+        attrs = DatasetCatalog.DATASETS[name]
+        args = dict(
+            root=os.path.join(root, attrs["data_dir"]),
+            split=attrs["split"],
+        )
+        if name in ['kitti_train_vob_car', 'kitti_val_vob_car',
+                    'kitti_train_pob_car', 'kitti_val_pob_car',
+                    ]:
             return dict(
-                factory="KITTIObjectDatasetVOB",
-                args=args,
+                factory="KITTIObjectDatasetCar",
+                args={**args, 'shape_prior_base': attrs['shape_prior_base']},
             )
-        elif 'kitti' in name and 'pob' in name:
-            root = DatasetCatalog.DATA_DIR
-            attrs = DatasetCatalog.DATASETS[name]
-            args = dict(
-                root=os.path.join(root, attrs["data_dir"]),
-                split=attrs["split"],
-            )
+        elif name in ['kitti_train_vob_pedestrian',
+                      'kitti_val_vob_pedestrian',
+                      'kitti_train_pob_pedestrian',
+                      'kitti_val_pob_pedestrian']:
             return dict(
-                factory="KITTIObjectDatasetPOB",
-                args=args,
+                factory='KITTIObjectDatasetPedestrian',
+                args={**args, 'shape_prior_base': attrs['shape_prior_base']}
             )
+        elif name in ['kitti_train_cyclist',
+                      'kitti_val_cyclist']:
+            return dict(
+                factory='KITTIObjectDatasetCyclist',
+                args=args
+            )
+
         raise RuntimeError("Dataset not available: {}".format(name))
 
 

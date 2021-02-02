@@ -55,7 +55,7 @@ class RPN(nn.Module):
         else:
             raise NotImplementedError
 
-        self.proposal_layer = ProposalLayer(cfg,total_cfg)
+        self.proposal_layer = ProposalLayer(cfg, total_cfg)
         self.init_weights()
         self.loss_evaluator = PointRCNNLossComputation(cfg)
 
@@ -83,24 +83,8 @@ class RPN(nn.Module):
             rpn_loss = self.loss_evaluator(rpn_cls, rpn_reg, rpn_cls_label, rpn_reg_label, matched_idxs)
             return ret_dict, rpn_loss
         else:
-            # training rcnn stage.
-            with torch.no_grad():
-                rpn_scores_raw = rpn_cls[:, :, 0]
-                rpn_scores_norm = torch.sigmoid(rpn_scores_raw)
-                seg_mask = (rpn_scores_norm > self.cfg.RPN.SCORE_THRESH).float()
-                pts_depth = torch.norm(backbone_xyz, p=2, dim=2)
-
-                # proposal layer
-                rois, roi_scores_raw = self.proposal_layer(rpn_scores_raw, rpn_reg, backbone_xyz)  # (B, M, 7)
-
-            rcnn_input_info = {'rpn_xyz': backbone_xyz,
-                               'rpn_features': backbone_features.permute((0, 2, 1)),
-                               'seg_mask': seg_mask,
-                               'roi_boxes3d': rois,
-                               'pts_depth': pts_depth}
-            ret_dict.update(rcnn_input_info)
-
-            return ret_dict, {}
+            # should not be here.
+            raise NotImplementedError()
 
     def _forward_eval(self, pts_input):
         backbone_xyz, backbone_features = self.backbone_net(pts_input)  # (B, N, 3), (B, C, N)

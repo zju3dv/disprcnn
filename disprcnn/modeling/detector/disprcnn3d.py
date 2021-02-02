@@ -244,7 +244,7 @@ class DispRCNN3D(nn.Module):
                     left_result = lrs
                     right_result = rrs
             # 2. forward psmnet
-            output = self.dispnet(left_roi_images, right_roi_images)
+            output = self.dispnet((left_roi_images, right_roi_images))
             # 3. compute loss
             if self.cfg.SOLVER.TRAIN_PSM:
                 disp_loss = self.dispnet_lossfn(roi_disp_targets, output, roi_masks)
@@ -270,7 +270,7 @@ class DispRCNN3D(nn.Module):
                 self.prepare_psmnet_input_and_target(left_images, right_images,
                                                      left_result, right_result, left_targets, require_mask_tgts=False)
             if len(left_roi_images) > 0:
-                output = self.dispnet(left_roi_images, right_roi_images)
+                output = self.dispnet((left_roi_images, right_roi_images))
             else:
                 output = torch.zeros((0, self.disp_resolution, self.disp_resolution)).cuda()
             # add output to extra_fields

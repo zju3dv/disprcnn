@@ -37,7 +37,9 @@ def build_dataset(dataset_list, transforms, dataset_catalog, is_train=True,
         args = data["args"]
         # for COCODataset, we want to remove images without annotations
         # during training
-        if data['factory'] in ['KITTIObjectDatasetVOB', 'KITTIObjectDatasetPOB']:
+        if data['factory'] in ['KITTIObjectDatasetCar',
+                               'KITTIObjectDatasetPedestrian',
+                               'KITTIObjectDatasetCyclist']:
             args["filter_empty"] = is_train
             args['offline_2d_predictions_path'] = offline_2d_predictions_path
         args["transforms"] = transforms_this_ds

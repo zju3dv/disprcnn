@@ -1,25 +1,27 @@
+import numpy as np
+import os
+import pickle
+
 import cv2
 import torch
 import torch.utils.data
 import zarr
-from tqdm import tqdm
-import os
 from PIL import Image
-import pickle
-import numpy as np
+from tqdm import tqdm
+
 from disprcnn.structures.bounding_box import BoxList
 from disprcnn.structures.bounding_box_3d import Box3DList
 from disprcnn.structures.calib import Calib
 from disprcnn.structures.disparity import DisparityMap
-from disprcnn.structures.segmentation_mask import SegmentationMask
 from disprcnn.utils.kitti_utils import load_calib, load_image_2, load_label_2, load_label_3
+from disprcnn.structures.segmentation_mask import SegmentationMask
 from disprcnn.utils.stereo_utils import align_left_right_targets
 
 
-class KITTIObjectDataset(torch.utils.data.Dataset):
+class KITTIObjectDatasetCyclist(torch.utils.data.Dataset):
     CLASSES = (
         "__background__",
-        "car",
+        "cyclist",
         'dontcare'
     )
     NUM_TRAINING = 7481
@@ -28,7 +30,7 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
     NUM_TESTING = 7518
 
     def __init__(self, root, split, transforms=None, filter_empty=False, offline_2d_predictions_path='',
-                 mask_disp_sub_path='vob', remove_ignore=True):
+                 shape_prior_base='notused', remove_ignore=True):
         """
         :param root: '.../kitti/
         :param split: ['train','val']
@@ -38,25 +40,45 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
         """
         self.root = root
         self.split = split
-        cls = KITTIObjectDataset.CLASSES
+        cls = KITTIObjectDatasetCyclist.CLASSES
         self.remove_ignore = remove_ignore
         self.class_to_ind = dict(zip(cls, range(len(cls))))
         self.transforms = transforms
-        self.mask_disp_sub_path = mask_disp_sub_path
+        self.shape_prior_base = shape_prior_base
         # make cache or read cached annotation
         self.annotations = self.read_annotations()
         self.infos = self.read_info()
         self._imgsetpath = os.path.join(self.root, "object/split_set/%s_set.txt")
+        if offline_2d_predictions_path != '':
+            o2ppath = offline_2d_predictions_path % split + '.pth'
+            if is_testing_split(self.split):
+                s = o2ppath.split('/')[-2]
+                s = '_'.join(s.split('_')[:2])
+                o2ppath = '/'.join(o2ppath.split('/')[:-2] + [s] + [o2ppath.split('/')[-1]])
+            self.o2dpreds = torch.load(o2ppath, 'cpu')
 
         with open(self._imgsetpath % self.split) as f:
             self.ids = f.readlines()
         self.ids = [x.strip("\n") for x in self.ids]
+        if hasattr(self, 'o2dpreds'):
+            assert len(self.ids) == len(self.o2dpreds['left'])
         if filter_empty:
             ids = []
-            for i in self.ids:
-                if self.annotations['left'][int(i)]['labels'].sum() != 0:
-                    ids.append(i)
+            if hasattr(self, 'o2dpreds'):
+                o2dpreds = {'left': [], 'right': []}
+            for i, id in enumerate(self.ids):
+                if self.annotations['left'][int(id)]['labels'].sum() != 0:
+                    if hasattr(self, 'o2dpreds'):
+                        if len(self.o2dpreds['left'][i]) != 0:
+                            ids.append(id)
+                            o2dpreds['left'].append(self.o2dpreds['left'][i])
+                            o2dpreds['right'].append(self.o2dpreds['right'][i])
+                    else:
+                        ids.append(id)
             self.ids = ids
+            if hasattr(self, 'o2dpreds'):
+                self.o2dpreds = o2dpreds
+        # self.id_to_img_map = {k: v for k, v in enumerate(self.ids)}
         self.truncations_list, self.occlusions_list = self.get_truncations_occluded_list()
         if '%s' in offline_2d_predictions_path:
             self.offline_2d_predictions_dir = offline_2d_predictions_path % split
@@ -69,24 +91,24 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
         targets = self.get_ground_truth(index)
         if self.transforms is not None:
             imgs, targets = self.transforms(imgs, targets)
-        if self.split != 'test':
+        if not is_testing_split(self.split):
             for view in ['left', 'right']:
                 labels = targets[view].get_field('labels')
                 targets[view] = targets[view][labels == 1]  # remove not cars
-            l, r = align_left_right_targets(targets['left'], targets['right'], thresh=0.15)
-            if self.split == 'val' and self.remove_ignore:
-                l, r = self.remove_ignore_cars(l, r)
+            l, r = align_left_right_targets(targets['left'], targets['right'], thresh=0.0)
             targets['left'] = l
             targets['right'] = r
         if self.offline_2d_predictions_dir != '':
             lp, rp = self.get_offline_prediction(index)
+            lp = lp.resize(targets['left'].size)
+            rp = rp.resize(targets['right'].size)
             return imgs, targets, index, lp, rp
         else:
             return imgs, targets, index
 
     def get_image(self, index):
         img_id = self.ids[index]
-        split = 'training' if self.split != 'test' else 'testing'
+        split = 'training' if not is_testing_split(self.split) else 'testing'
         left_img = Image.open(os.path.join(self.root, 'object', split, 'image_2', img_id + '.png'))
         right_img = Image.open(os.path.join(self.root, 'object', split, 'image_3', img_id + '.png'))
         imgs = {'left': left_img, 'right': right_img}
@@ -94,7 +116,7 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
 
     def get_ground_truth(self, index):
         img_id = self.ids[index]
-        if self.split != 'test':
+        if not is_testing_split(self.split):
             left_annotation = self.annotations['left'][int(img_id)]
             right_annotation = self.annotations['right'][int(img_id)]
             info = self.get_img_info(index)
@@ -102,15 +124,14 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
             # left target
             left_target = BoxList(left_annotation["boxes"], (width, height), mode="xyxy")
             left_target.add_field("labels", left_annotation["labels"])
-            left_target.add_field("alphas", left_annotation['alphas'])
+            # left_target.add_field("alphas", left_annotation['alphas'])
             boxes_3d = Box3DList(left_annotation["boxes_3d"], (width, height), mode='ry_lhwxyz')
             left_target.add_field("box3d", boxes_3d)
             left_target.add_map('disparity', self.get_disparity(index))
-            left_target.add_field('masks', self.get_mask(index))
+            left_target.add_field('kins_masks', self.get_kins_mask(index, len=len(left_target)))
             left_target.add_field('truncation', torch.tensor(self.truncations_list[int(img_id)]))
             left_target.add_field('occlusion', torch.tensor(self.occlusions_list[int(img_id)]))
             left_target.add_field('image_size', torch.tensor([[width, height]]).repeat(len(left_target), 1))
-            left_target.add_field('masks', self.get_mask(index))
             left_target.add_field('calib', Calib(self.get_calibration(index), (width, height)))
             left_target.add_field('index', torch.full((len(left_target), 1), index, dtype=torch.long))
             left_target.add_field('imgid', torch.full((len(left_target), 1), int(img_id), dtype=torch.long))
@@ -118,9 +139,6 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
             # right target
             right_target = BoxList(right_annotation["boxes"], (width, height), mode="xyxy")
             right_target.add_field("labels", right_annotation["labels"])
-            right_target.add_field("alphas", right_annotation['alphas'])
-            boxes_3d = Box3DList(right_annotation["boxes_3d"], (width, height), mode='ry_lhwxyz')
-            right_target.add_field("box3d", boxes_3d)
             right_target = right_target.clip_to_image(remove_empty=True)
             target = {'left': left_target, 'right': right_target}
             return target
@@ -133,8 +151,6 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
             left_target.add_field('image_size', torch.tensor([[width, height]]).repeat(len(left_target), 1))
             left_target.add_field('calib', Calib(self.get_calibration(index), (width, height)))
             left_target.add_field('index', torch.full((len(left_target), 1), index, dtype=torch.long))
-            left_target.add_field('masks', self.get_mask(index))
-            left_target.add_map('disparity', self.get_disparity(index))
             left_target.add_field('imgid', torch.full((len(left_target), 1), int(img_id), dtype=torch.long))
             # right target
             right_target = BoxList(fakebox, (width, height), mode="xyxy")
@@ -149,18 +165,15 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
         return self.infos[int(img_id)]
 
     def map_class_id_to_class_name(self, class_id):
-        return KITTIObjectDataset.CLASSES[class_id]
+        return KITTIObjectDatasetCyclist.CLASSES[class_id]
 
     def read_annotations(self):
         double_view_annotations = {}
-        if self.split == 'test':
-            split = 'testing'
+        if is_testing_split(self.split):
             return {'left': [], 'right': []}
-        else:
-            split = 'training'
         for view in [2, 3]:
-            annodir = os.path.join(self.root, f"object/{split}/label_{view}")
-            anno_cache_path = os.path.join(annodir, 'annotations.pkl')
+            annodir = os.path.join(self.root, f"object/training/label_{view}")
+            anno_cache_path = os.path.join(annodir, 'cyclist_annotations.pkl')
             if os.path.exists(anno_cache_path):
                 annotations = pickle.load(open(anno_cache_path, 'rb'))
             else:
@@ -185,10 +198,10 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
                         cls_str = cls.lower().strip()
                         if self.split == 'training':
                             # regard car and van as positive
-                            cls_str = 'car' if cls_str in ['car', 'van'] else '__background__'
+                            cls_str = 'cyclist' if cls_str == 'cyclist' else '__background__'
                         else:  # val
                             # return 'dontcare' in validation phase
-                            if cls_str != 'car':
+                            if cls_str != 'cyclist':
                                 cls_str = '__background__'
                         cls = self.class_to_ind[cls_str]
                         label[ix] = cls
@@ -215,12 +228,12 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
         return double_view_annotations
 
     def read_info(self):
-        split = 'training' if self.split != 'test' else 'testing'
+        split = 'training' if not is_testing_split(self.split) else 'testing'
         infopath = os.path.join(self.root,
                                 f'object/{split}/infos.pkl')
         if not os.path.exists(infopath):
             infos = []
-            total = 7481 if self.split != 'test' else 7518
+            total = 7481 if not is_testing_split(self.split) else 7518
             for i in tqdm(range(total)):
                 img = load_image_2(self.root, split, i)
                 infos.append({"height": img.height, "width": img.width, 'size': img.size})
@@ -231,7 +244,7 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
         return infos
 
     def get_truncations_occluded_list(self):
-        if self.split == 'test':
+        if is_testing_split(self.split):
             return [], []
         annodir = os.path.join(self.root, f"object/training/label_2")
         truncations_occluded_cache_path = os.path.join(annodir, 'truncations_occluded.pkl')
@@ -255,32 +268,34 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
         return truncations_list, occluded_list
 
     def get_offline_prediction(self, index):
-        imgid = self.ids[index]
-        pred = pickle.load(open(os.path.join(
-            self.offline_2d_predictions_dir, str(imgid) + '.pkl'), 'rb'))
-        lp, rp = pred['left'], pred['right']
-        return lp, rp
+        lpmem, rpmem = self.o2dpreds['left'][index], self.o2dpreds['right'][index]
+        return lpmem, rpmem
 
-    def get_mask(self, index):
+    def get_kins_mask(self, index, len=None):
         imgid = self.ids[index]
-        split = 'training' if self.split != 'test' else 'testing'
+        # split = 'training' if self.split != 'test' else 'testing'
+        split = 'training' if not is_testing_split(self.split) else 'testing'
         imginfo = self.get_img_info(index)
         width = imginfo['width']
         height = imginfo['height']
-        if split == 'training':
-            mask = zarr.load(
-                os.path.join(self.root, 'object', split, self.mask_disp_sub_path, 'mask_2', imgid + '.zarr')) != 0
-            mask = SegmentationMask(mask, (width, height), mode='mask')
+        # try:
+        p = os.path.join(self.root, 'object', split, 'kins_mask_2', imgid + '.zarr')
+        if split == 'training' and os.path.exists(p):
+            mask = zarr.load(p) != 0
+            mask = SegmentationMask(torch.tensor(mask).byte(), (width, height), mode='mask')
+            # else:
+            #     raise Exception()
+        # except Exception as e:
         else:
-            mask = SegmentationMask(np.zeros((height, width)), (width, height), mode='mask')
+            mask = torch.ones((len, height, width))
+            mask = SegmentationMask(mask.byte(), (width, height), mode='mask')
         return mask
 
     def get_disparity(self, index):
         imgid = self.ids[index]
-        split = 'training' if self.split != 'test' else 'testing'
+        split = 'training' if not is_testing_split(self.split) else 'testing'
         if split == 'training':
-            path = os.path.join(self.root, 'object', split,
-                                self.mask_disp_sub_path, 'disparity_2',
+            path = os.path.join(self.root, 'object', split, 'cyclist_disparity_2',
                                 imgid + '.png')
             disp = cv2.imread(path, 2).astype(np.float32) / 256
             disp = DisparityMap(disp)
@@ -293,40 +308,10 @@ class KITTIObjectDataset(torch.utils.data.Dataset):
 
     def get_calibration(self, index):
         imgid = self.ids[index]
-        split = 'training' if self.split != 'test' else 'testing'
+        split = 'training' if not is_testing_split(self.split) else 'testing'
         calib = load_calib(self.root, split, imgid)
         return calib
 
-    def remove_ignore_cars(self, l, r):
-        if len(l) == 0 and len(r) == 0:
-            return l, r
 
-        heights = l.heights / l.height * l.get_field('image_size')[0, 1]
-        truncations = l.get_field('truncation').tolist()
-        occlusions = l.get_field('occlusion').tolist()
-        keep = []
-        for i, (height, truncation, occlusion) in enumerate(zip(heights, truncations, occlusions)):
-            if height >= 40 and truncation <= 0.15 and occlusion <= 0:
-                keep.append(i)
-            elif height >= 25 and truncation <= 0.3 and occlusion <= 1:
-                keep.append(i)
-            elif height >= 25 and truncation <= 0.5 and occlusion <= 2:
-                keep.append(i)
-        l = l[keep]
-        r = r[keep]
-        return l, r
-
-
-class KITTIObjectDatasetPOB(KITTIObjectDataset):
-
-    def __init__(self, root, split, transforms=None, filter_empty=False, offline_2d_predictions_path='', ):
-        super().__init__(root, split, transforms, filter_empty, offline_2d_predictions_path, 'pob')
-
-
-class KITTIObjectDatasetVOB(KITTIObjectDataset):
-
-    def __init__(self, root, split, transforms=None, filter_empty=False, offline_2d_predictions_path='',
-                 remove_ignore=True):
-        # print('using dataset', self.__class__.__name__)
-        super().__init__(root, split, transforms, filter_empty, offline_2d_predictions_path, 'vob',
-                         remove_ignore)
+def is_testing_split(split):
+    return split in ['test', 'testmini', 'test1', 'test2']

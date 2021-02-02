@@ -7,7 +7,7 @@ MODEL:
     LOSS_WEIGHT: 0.05
     MAX_ROI_FOR_TRAINING: 12
     ROI_MIN_SCORE: 0.5
-    TRAINED_MODEL: "models/kitti/cyclist/pob/idispnet/bestmodel.pth"
+    TRAINED_MODEL: "models/kitti/cyclist/idispnet/bestmodel.pth"
   MASK_ON: True
   STEREO_ON: True
   DET3D_ON: False
@@ -30,7 +30,7 @@ SOLVER:
   PRINT_INTERVAL: 1
   PRINT_ITERATION: False
   REMOVE_EMPTY_ANNOTATIONS_TRAIN: False
-  OFFLINE_2D_PREDICTIONS: "models/kitti/cyclist/R101_FPN_mask_rcnn_v2/inference/kitti_%s_cyclist/predictions"
+  OFFLINE_2D_PREDICTIONS: "models/kitti/cyclist/mask/inference/kitti_%s_cyclist/predictions"
   CHECKPOINT_PERIOD: 410
 TEST:
   IMS_PER_BATCH: 1

@@ -26,7 +26,7 @@ class PointRCNN(nn.Module):
             self.rpn = RPN(self.cfg, self.total_cfg)
 
         if self.cfg.RCNN.ENABLED:
-            self.rcnn_net = RCNNNet(self.cfg)
+            self.rcnn_net = RCNNNet(self.cfg, self.total_cfg)
 
         self.proposal_matcher = Matcher(
             cfg.MODEL.ROI_HEADS.FG_IOU_THRESHOLD,
@@ -314,21 +314,27 @@ class PointRCNN(nn.Module):
                 left_results = combine_2d_3d(left_results, proposals)
             else:
                 # inference with rpn
-                box3d = rpn_proposals['roi_boxes3d'][:, 0]  # 1,7
-                box3d[:, 0:3] = box3d[:, 0:3] + self.pts_mean
+                box3d = rpn_proposals['roi_boxes3d']  # 64,7
+                bsz = box3d.shape[0]
+                box3d[:, :, 0:3] = box3d[:, :, 0:3] + self.pts_mean[:, None, :]
                 corners_rot_back = self.rotator.rotate_back(
-                    Box3DList(box3d,
-                              size=(1280, 720),
-                              mode='xyzhwl_ry').convert('corners').
-                        bbox_3d.view(-1, 8, 3).permute(0, 2, 1)).permute(0, 2, 1)
+                    Box3DList(box3d.reshape(-1, 7), size=(1, 1), mode='xyzhwl_ry'
+                              ).convert('corners').bbox_3d.view(bsz, -1, 3).permute(0, 2, 1)
+                ).permute(0, 2, 1).view(bsz, -1, 8, 3)
 
-                score_3d = rpn_proposals['roi_scores_raw'][:, 0]
-                left_results[0].add_field('box3d',
-                                          Box3DList(corners_rot_back.reshape(-1, 24),
-                                                    (1280, 720), 'corners').convert(
-                                              'xyzhwl_ry')
-                                          )
-                left_results[0].add_field('scores_3d', score_3d.cpu())
+                # score_3d = rpn_proposals['roi_scores_raw'][:, 0]
+                score_3d = rpn_proposals['roi_scores_raw']
+                ss, bs = [], []
+                for crb, s3d in zip(corners_rot_back, score_3d):
+                    idx = torch.argmax(s3d)
+                    ss.append(s3d[idx])
+                    bs.append(crb[idx])
+                ss = torch.tensor(ss)
+                bs = torch.stack(bs)
+                bs = Box3DList(bs.reshape(-1, 24), (1, 1), 'corners').convert('xyzhwl_ry')
+                left_results[0].add_field('box3d', bs)
+                left_results[0].add_field('scores_3d', ss.cpu())
+                rpn_proposals['roi_boxes3d'] = bs.bbox_3d.unsqueeze(0)
         else:
             for left_result in left_results:
                 left_result.add_field('box3d',

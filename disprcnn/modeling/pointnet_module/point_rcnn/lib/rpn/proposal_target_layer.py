@@ -13,9 +13,10 @@ from ..utils.iou3d import iou3d_utils as iou3d_utils
 
 
 class ProposalTargetLayer(nn.Module):
-    def __init__(self, cfg):
+    def __init__(self, cfg, total_cfg):
         super().__init__()
         self.cfg = cfg
+        self.total_cfg = total_cfg
 
     def forward(self, input_dict, gt_boxes3d):
 
@@ -97,11 +98,11 @@ class ProposalTargetLayer(nn.Module):
         """
         batch_size = roi_boxes3d.shape[0]
 
-        fg_rois_per_image = int(np.round(self.cfg.RCNN.FG_RATIO * self.cfg.RCNN.ROI_PER_IMAGE))
-
-        batch_rois = gt_boxes3d.new(batch_size, self.cfg.RCNN.ROI_PER_IMAGE, 7).zero_()
-        batch_gt_of_rois = gt_boxes3d.new(batch_size, self.cfg.RCNN.ROI_PER_IMAGE, 7).zero_()
-        batch_roi_iou = gt_boxes3d.new(batch_size, self.cfg.RCNN.ROI_PER_IMAGE).zero_()
+        roi_per_image = self.cfg.RCNN.ROI_PER_IMAGE
+        fg_rois_per_image = int(np.round(self.cfg.RCNN.FG_RATIO * roi_per_image))
+        batch_rois = gt_boxes3d.new(batch_size, roi_per_image, 7).zero_()
+        batch_gt_of_rois = gt_boxes3d.new(batch_size, roi_per_image, 7).zero_()
+        batch_roi_iou = gt_boxes3d.new(batch_size, roi_per_image).zero_()
         # torch.cuda.synchronize()
         # sampletimer.tic()
         for idx in range(batch_size):
@@ -132,19 +133,19 @@ class ProposalTargetLayer(nn.Module):
                 fg_inds = fg_inds[rand_num[:fg_rois_per_this_image]]
 
                 # sampling bg
-                bg_rois_per_this_image = self.cfg.RCNN.ROI_PER_IMAGE - fg_rois_per_this_image
+                bg_rois_per_this_image = roi_per_image - fg_rois_per_this_image
                 bg_inds = self.sample_bg_inds(hard_bg_inds, easy_bg_inds, bg_rois_per_this_image)
 
             elif fg_num_rois > 0 and bg_num_rois == 0:
                 # sampling fg
-                rand_num = torch.floor(torch.rand(self.cfg.RCNN.ROI_PER_IMAGE) * fg_num_rois)
+                rand_num = torch.floor(torch.rand(roi_per_image) * fg_num_rois)
                 rand_num = rand_num.type_as(gt_boxes3d).long()
                 fg_inds = fg_inds[rand_num]
-                fg_rois_per_this_image = self.cfg.RCNN.ROI_PER_IMAGE
+                fg_rois_per_this_image = roi_per_image
                 bg_rois_per_this_image = 0
             elif bg_num_rois > 0 and fg_num_rois == 0:
                 # sampling bg
-                bg_rois_per_this_image = self.cfg.RCNN.ROI_PER_IMAGE
+                bg_rois_per_this_image = roi_per_image
                 bg_inds = self.sample_bg_inds(hard_bg_inds, easy_bg_inds, bg_rois_per_this_image)
 
                 fg_rois_per_this_image = 0

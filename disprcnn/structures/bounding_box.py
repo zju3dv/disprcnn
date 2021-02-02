@@ -86,6 +86,10 @@ class BoxList(object):
     def has_map(self, map):
         return map in self.PixelWise_map
 
+    def remove_map_if_exist(self, key):
+        if self.has_map(key):
+            self.PixelWise_map.pop(key)
+
     def maps(self):
         return list(self.PixelWise_map.keys())
 
