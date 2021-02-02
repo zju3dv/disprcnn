@@ -59,16 +59,16 @@ Note that the current implementation cannot exit itself automatically, see [Note
     
     Then train the Stereo Mask R-CNN with the following command.
 
-	```bash
+    ```bash
 	sh scripts/car/vob/train_smrcnn.sh # This step cost ~1.5 hours using 4 GPUs.
-	```
+    ```
 
-​		For the **pedestrian** and **cyclist** categories, we provide 2D predictions, you can download them instead of training by yourself.
+		For the **pedestrian** and **cyclist** categories, we provide 2D predictions, you can download them instead of training by yourself.
 
-  ```bash
-    sh scripts/download/model/pedestrian_2d.sh
-    sh scripts/download/model/cyclist_2d.sh
-  ```
+    ```bash
+	sh scripts/download/model/pedestrian_2d.sh
+	sh scripts/download/model/cyclist_2d.sh
+    ```
 
 3. train iDispNet.<br>
    Download `pretrained_model_KITTI2015.tar`
@@ -79,10 +79,9 @@ Note that the current implementation cannot exit itself automatically, see [Note
    
    We use the fast.ai framework to train the iDispNet as in `train_idispnet_fa.py`. 
 
-```bash
-sh scripts/car/vob/train_idispnet.sh # This step cost ~8 hours using 8 GPUs.
-```
-
+   ```bash
+   sh scripts/car/vob/train_idispnet.sh # This step cost ~8 hours using 8 GPUs.
+   ```
 
 4. train RPN
    ```bash
@@ -111,22 +110,22 @@ As an example, we describe steps to run the *vob* version for the *car* category
 When you have multiple GPUs with more than 12G memory (e.g. RTX TITAN/V100), run the first command to perform distributed inference on multiple GPUs. Otherwise, you are recommended to use only one GPU.
 
    ```bash
-	 # download pretrained model.
-	 sh scripts/download/model/pretrained_car_vob.sh
-	 # distributed inference with multiple GPUs.
+   # download pretrained model.
+   sh scripts/download/model/pretrained_car_vob.sh
+   # distributed inference with multiple GPUs.
    export NGPUS=8
    sh scripts/car/vob/eval_with_trained_model.sh
    # inference with one GPU.
    export NGPUS=1
-	 sh scripts/car/vob/eval_with_trained_model.sh
+   sh scripts/car/vob/eval_with_trained_model.sh
    ```
 
 For pedestrians and cyclists, we provide 2D predictions instead of trained 2D detector. Download them using the following command.
 
-```bash
-	sh scripts/download/model/pedestrian_2d.sh
-	sh scripts/download/model/cyclist_2d.sh
-```
+   ```bash
+   sh scripts/download/model/pedestrian_2d.sh 
+   sh scripts/download/model/cyclist_2d.sh
+   ```
 
 ## Notes
 
