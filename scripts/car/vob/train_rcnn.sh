@@ -9,4 +9,4 @@ echo $(realpath model_0000000.pth) > last_checkpoint
 # train rcnn
 cd ../../../../../
 python -m torch.distributed.launch --nproc_per_node $NGPUS tools/train_net.py \
---config-file configs/kitti/car/vob/rcnn.yaml
+--config-file configs/kitti/car/vob/rcnn.yaml DATALOADER.NUM_WORKERS 0

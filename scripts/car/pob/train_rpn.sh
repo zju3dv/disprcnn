@@ -5,4 +5,4 @@ python -m torch.distributed.launch --nproc_per_node $NGPUS tools/test_net.py \
 # train RPN
 echo 'train RPN...'
 python -m torch.distributed.launch --nproc_per_node $NGPUS tools/train_net.py \
---config-file configs/kitti/car/pob/rpn.yaml
+--config-file configs/kitti/car/pob/rpn.yaml DATALOADER.NUM_WORKERS 0
