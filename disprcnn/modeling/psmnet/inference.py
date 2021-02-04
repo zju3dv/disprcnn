@@ -17,8 +17,8 @@ def sanity_check(left_predictions, right_predictions):
 
 class DisparityMapProcessor:
     def _forward_single_image(self, left_prediction: BoxList, right_prediction: BoxList) -> DisparityMap:
-        left_bbox = left_prediction.bbox.round().int()
-        right_bbox = right_prediction.bbox.round().int()
+        left_bbox = left_prediction.bbox
+        right_bbox = right_prediction.bbox
         disparity_preds = left_prediction.get_field('disparity')
         mask_preds = left_prediction.get_field('mask').clone()
         # print(disparity_preds.shape)
@@ -35,9 +35,9 @@ class DisparityMapProcessor:
                 x1, y1, x2, y2 = expand_box_to_integer((x1, y1, x2, y2))
                 x1p, _, x2p, _ = expand_box_to_integer((x1p, y1, x2p, y2))
                 disparity_map_per_roi = torch.zeros((left_prediction.height, left_prediction.width))
-                mask = mask_pred.squeeze(0)
-                mask = SegmentationMask(BinaryMaskList(mask, size=mask.shape[::-1]), size=mask.shape[::-1],
-                                        mode='mask').crop((x1, y1, x1 + max(x2 - x1, x2p - x1p), y2))
+                # mask = mask_pred.squeeze(0)
+                # mask = SegmentationMask(BinaryMaskList(mask, size=mask.shape[::-1]), size=mask.shape[::-1],
+                #                         mode='mask').crop((x1, y1, x1 + max(x2 - x1, x2p - x1p), y2))
                 disp_roi = DisparityMap(disp_roi).resize(
                     (max(x2 - x1, x2p - x1p), y2 - y1)).crop(
                     (0, 0, x2 - x1, y2 - y1)).data

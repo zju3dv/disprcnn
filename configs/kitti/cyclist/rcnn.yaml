@@ -1,0 +1,64 @@
+MODEL:
+  META_ARCHITECTURE: "DispRCNN3D"
+  POINTRCNN:
+    MASK_THRESH: 0.5
+    AUG_DATA: True
+    MEAN_SIZE: [[  1.73720344, 0.5967732, 1.7635464]]
+    RPN:
+      FIXED: True
+      LOSS_CLS: BinaryCrossEntropy
+    RCNN:
+      ENABLED: True
+      CLS_FG_THRESH: 0.4
+      REG_FG_THRESH: 0.35
+      LOSS_CLS: BinaryCrossEntropy
+      ROI_PER_IMAGE: 16
+    TRAIN:
+      RPN_PRE_NMS_TOP_N: 9000
+      RPN_POST_NMS_TOP_N: 512
+    TEST:
+      RPN_PRE_NMS_TOP_N: 9000
+      RPN_POST_NMS_TOP_N: 100
+  MASK_ON: True
+  STEREO_ON: True
+  DET3D_ON: True
+  DISPNET_ON: False
+DATASETS:
+  TRAIN: ("kitti_train_cyclist", )
+  TEST: ("kitti_val_cyclist",)
+DATALOADER:
+  SIZE_DIVISIBILITY: 1
+  NUM_WORKERS: 6
+SOLVER:
+  BASE_LR: 0.01
+  WEIGHT_DECAY: 0.0001
+  SCHEDULER: OneCycleScheduler
+  MAX_ITER: 62100
+  IMS_PER_BATCH: 1
+  TRAIN_PSM: False
+  TRAIN_PC: True
+  LOAD_OPTIMIZER: False
+  LOAD_SCHEDULER: False
+  FIX_DISPARITY: True
+  FIX_POINTRCNN_RPN: True
+  PRINT_INTERVAL: 1
+  PRINT_ITERATION: False
+  ALLOW_EXCEPTION: True
+  DO_GRAD_CLIP: True
+  REMOVE_EMPTY_ANNOTATIONS_TRAIN: False
+  OFFLINE_2D_PREDICTIONS: "models/kitti/cyclist/idispnet/inference/kitti_%s_cyclist/predictions"
+  CHECKPOINT_PERIOD: 1000
+TEST:
+  IMS_PER_BATCH: 1
+OUTPUT_DIR:
+  "models/kitti/cyclist/rcnn/"
+INPUT:
+  DO_RESIZE: False
+  FLIP_PROB_TRAIN: 0.0
+  MIN_SIZE_TRAIN: (600,)
+  MAX_SIZE_TRAIN: 10000
+  MIN_SIZE_TEST: 600
+  MAX_SIZE_TEST: 10000
+  PIXEL_MEAN: [0.0, 0.0, 0.0]
+  PIXEL_STD: [1.0, 1.0, 1.0]
+  TO_BGR255: False

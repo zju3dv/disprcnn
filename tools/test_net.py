@@ -2,7 +2,6 @@ import argparse
 import os
 
 import torch
-
 from disprcnn.config import cfg
 from disprcnn.data import make_data_loader
 from disprcnn.engine.inference import inference
@@ -13,7 +12,7 @@ from disprcnn.utils.logger import setup_logger
 from disprcnn.utils.miscellaneous import mkdir
 import torch.multiprocessing
 
-torch.multiprocessing.set_sharing_strategy('file_system')
+# torch.multiprocessing.set_sharing_strategy('file_system')
 
 
 def main():
@@ -91,6 +90,7 @@ def main():
             output_folder=of,
             force_recompute=not args.no_force_recompute,
         )
+        synchronize()
 
 
 if __name__ == "__main__":

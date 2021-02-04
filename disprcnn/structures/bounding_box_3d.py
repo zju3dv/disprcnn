@@ -302,6 +302,103 @@ class Box3DList(object):
         s += "mode={})".format(self.mode)
         return s
 
+    @property
+    def center(self):
+        b3d = self.convert('xyzhwl_ry').bbox_3d.clone()
+        xyz = b3d[:, :3]
+        h = b3d[:, 3]
+        xyz[:, 1] = xyz[:, 1] - h / 2
+        return xyz
+
+    @property
+    def dimension(self):
+        b3d = self.convert('xyzhwl_ry').bbox_3d.clone()
+        hwl = b3d[:, 3:6]
+        return hwl
+
+    def filter_points(self, pts):
+        """
+        return points in bounding boxes
+        @param pts:
+        @return:
+        """
+        from disprcnn.utils.utils_3d import filter_bbox_3d
+        corners = self.convert('corners').bbox_3d.reshape(-1,8,3)
+        filtered_pts = []
+        for c in corners:
+            _, _, keep = filter_bbox_3d(c, pts)
+            p = pts[keep]
+            filtered_pts.append(p)
+        return filtered_pts
+
+    def filter_out_points(self, pts):
+        """
+        return points not in any bounding box.
+        @param pts:
+        @return:
+        """
+        from disprcnn.utils.utils_3d import filter_bbox_3d
+        corners = self.convert('corners').bbox_3d.reshape(-1,8,3)
+        keep = torch.zeros((pts.shape[0])).bool()
+        for c in corners:
+            _, _, k = filter_bbox_3d(c, pts)
+            keep = keep | k
+        keep = ~keep
+        filtered_pts = pts[keep]
+        return filtered_pts
+
+    # def from_objects(self, objects):
+    #     """
+    #     @param objects: list of ObjectLabelRecord
+    #     @return:
+    #     """
+    #     box3d=[]
+    #     for o in objects:
+    #         box3d.append([o.])
+    # @property
+    # def x(self):
+    #     b3d = self.convert('xyzhwl_ry')
+    #     return b3d.bbox_3d[:, 0]
+    #
+    # @property
+    # def y(self):
+    #     b3d = self.convert('xyzhwl_ry')
+    #     return b3d.bbox_3d[:, 1]
+    #
+    # @property
+    # def z(self):
+    #     b3d = self.convert('xyzhwl_ry')
+    #     return b3d.bbox_3d[:, 2]
+    #
+    # @property
+    # def h(self):
+    #     b3d = self.convert('xyzhwl_ry')
+    #     return b3d.bbox_3d[:, 3]
+    #
+    # @property
+    # def w(self):
+    #     b3d = self.convert('xyzhwl_ry')
+    #     return b3d.bbox_3d[:, 4]
+    #
+    # @property
+    # def l(self):
+    #     b3d = self.convert('xyzhwl_ry')
+    #     return b3d.bbox_3d[:, 5]
+    #
+    # @property
+    # def ry(self):
+    #     b3d = self.convert('xyzhwl_ry')
+    #     return b3d.bbox_3d[:, 6]
+    #
+    # @property
+    # def xyz(self):
+    #     b3d = self.convert('xyzhwl_ry')
+    #     return b3d.bbox_3d[:, 0:3]
+    #
+    # @property
+    # def alpha(self):
+    #     return self.ry + torch.atan(-self.x / self.z)
+
 
 if __name__ == "__main__":
     # euler = (-0.06113487224401537, -0.010398221352184765, 0.35926017719345693)

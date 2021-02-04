@@ -52,7 +52,7 @@ class hourglass(nn.Module):
 
 
 class PSMNet(nn.Module):
-    def __init__(self, maxdisp, mindisp=0, is_module=False,
+    def __init__(self, maxdisp, mindisp=0, input_size=224, is_module=False,
                  feature_level=1, single_modal_weight_average=False, conv_layers=(),
                  use_disparity_regression=True
                  ):
@@ -103,7 +103,11 @@ class PSMNet(nn.Module):
             elif isinstance(m, nn.Linear):
                 m.bias.data.zero_()
 
-    def forward(self, left, right):
+    def forward(self, inputs):
+        if isinstance(inputs, dict):
+            left, right = inputs['left'], inputs['right']
+        elif len(inputs) == 2:
+            left, right = inputs
         bsz, _, H, W = left.shape
         refimg_fea = self.feature_extraction(left)
         targetimg_fea = self.feature_extraction(right)

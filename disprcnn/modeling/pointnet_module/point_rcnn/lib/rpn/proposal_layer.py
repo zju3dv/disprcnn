@@ -23,8 +23,8 @@ class ProposalLayer(nn.Module):
         :param xyz: (B, N, 3)
         :return bbox3d: (B, M, 7)
         """
-        assert not self.training
-        self.mode = 'TRAIN' if self.training else 'TEST'
+        # assert not self.training
+        # self.mode = 'TRAIN' if self.training else 'TEST'
         # if not self.training:
         #     mode = 'TEST'
         batch_size = xyz.shape[0]

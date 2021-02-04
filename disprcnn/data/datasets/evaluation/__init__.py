@@ -1,6 +1,6 @@
 from disprcnn.data import datasets
 
-from .kitti import kitti_evaluation
+from .kitti import kitti_evaluation, kitti_pedestrian_evaluation, kitti_cyclist_evaluation
 
 
 def evaluate(dataset, predictions, output_folder, **kwargs):
@@ -21,9 +21,16 @@ def evaluate(dataset, predictions, output_folder, **kwargs):
         output_folder=output_folder, **kwargs
     )
     if isinstance(dataset, (
-            datasets.KITTIObjectDatasetPOB, datasets.KITTIObjectDatasetVOB)):
+            datasets.KITTIObjectDatasetCar)):
         return kitti_evaluation(**args)
-
+    if isinstance(dataset, (
+            datasets.KITTIObjectDatasetPedestrian
+    )):
+        return kitti_pedestrian_evaluation(**args)
+    if isinstance(dataset, (
+            datasets.KITTIObjectDatasetCyclist
+    )):
+        return kitti_cyclist_evaluation(**args)
     else:
         dataset_name = dataset.__class__.__name__
         raise NotImplementedError("Unsupported dataset type {}.".format(dataset_name))

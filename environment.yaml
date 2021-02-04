@@ -13,7 +13,7 @@ dependencies:
   - pip:
     - scipy
     - tqdm
-    - fastai
+    - fastai==1.0.60
     - termcolor
     - matplotlib
     - numpy
@@ -26,4 +26,5 @@ dependencies:
     - zarr
     - opencv-python
     - pathlib2
+    - gdown
     - 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'

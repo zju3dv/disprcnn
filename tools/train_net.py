@@ -17,10 +17,11 @@ from disprcnn.utils.miscellaneous import mkdir
 import torch.multiprocessing
 from torch.nn.parallel import DistributedDataParallel
 
-torch.multiprocessing.set_sharing_strategy('file_system')
+# torch.multiprocessing.set_sharing_strategy('file_system')
 
 
 def train(cfg, local_rank, distributed):
+    torch.autograd.set_detect_anomaly(True)
     model = build_detection_model(cfg)
     device = torch.device(cfg.MODEL.DEVICE)
     model.to(device)

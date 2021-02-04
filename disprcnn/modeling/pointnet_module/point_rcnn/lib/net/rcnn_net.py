@@ -22,9 +22,10 @@ import numpy as np
 
 
 class RCNNNet(nn.Module):
-    def __init__(self, cfg, num_classes=2, input_channels=128, use_xyz=True):
+    def __init__(self, cfg,total_cfg, num_classes=2, input_channels=128, use_xyz=True):
         super().__init__()
         self.cfg = cfg
+        self.total_cfg = total_cfg
 
         self.SA_modules = nn.ModuleList()
         channel_in = input_channels
@@ -92,7 +93,7 @@ class RCNNNet(nn.Module):
             reg_layers.insert(1, nn.Dropout(self.cfg.RCNN.DP_RATIO))
         self.reg_layer = nn.Sequential(*reg_layers)
 
-        self.proposal_target_layer = ProposalTargetLayer(cfg)
+        self.proposal_target_layer = ProposalTargetLayer(self.cfg,self.total_cfg)
         self.init_weights(weight_init='xavier')
 
         self.inference = Box3DPointRCNNPostProcess(cfg)

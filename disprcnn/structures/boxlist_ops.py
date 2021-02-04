@@ -136,6 +136,26 @@ def boxlist_iou(boxlist1, boxlist2):
     return iou
 
 
+def box3dlist_iou3d(box3dlist1, box3dlist2):
+    from disprcnn.modeling.pointnet_module.point_rcnn.lib.utils.iou3d.iou3d_utils import boxes_iou3d_gpu
+    box3d1 = box3dlist1.convert('xyzhwl_ry').bbox_3d.cuda().float()
+    box3d2 = box3dlist2.convert('xyzhwl_ry').bbox_3d.cuda().float()
+    if len(box3dlist1) == 0 or len(box3dlist2) == 0:
+        return torch.empty((len(box3dlist1), len(box3dlist2)))
+    return boxes_iou3d_gpu(box3d1, box3d2)
+
+
+def box3dlist_ioubev(box3dlist1, box3dlist2):
+    from disprcnn.modeling.pointnet_module.point_rcnn.lib.utils.iou3d.iou3d_utils import boxes_iou_bev
+    from disprcnn.modeling.pointnet_module.point_rcnn.lib.utils.kitti_utils import boxes3d_to_bev_torch
+    if len(box3dlist1) == 0 or len(box3dlist2) == 0:
+        return torch.empty((len(box3dlist1), len(box3dlist2)))
+    ioubev = boxes_iou_bev(
+        boxes3d_to_bev_torch(box3dlist1.convert('xyzhwl_ry').bbox_3d.cuda()),
+        boxes3d_to_bev_torch(box3dlist2.convert('xyzhwl_ry').bbox_3d.cuda()))
+    return ioubev
+
+
 # TODO redundant, remove
 def _cat(tensors, dim=0):
     """
@@ -144,6 +164,8 @@ def _cat(tensors, dim=0):
     assert isinstance(tensors, (list, tuple))
     if len(tensors) == 1:
         return tensors[0]
+    if isinstance(tensors[0], Box3DList):
+        return cat_boxlist3d(tensors)
     return torch.cat(tensors, dim)
 
 
