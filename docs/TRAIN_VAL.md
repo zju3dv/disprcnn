@@ -5,11 +5,11 @@
 We have made lots of updates in 2021.2, Please pull the commits to get the newest code and data.
 
 1. Pedestrians and cyclists are supported.
-2. New data to support robust training.
+2. New pseudo-GT data is released.
    1. Pseudo-GT for pedestrians and cyclists are released.
-   2. Pseudo-GT for cars are updated. We add disparity for background using depth completion for more robust training for the iDispNet near the edge of segmentation mask.
-3. New trained models to produce better results.
-4. Easy download scripts using [gdown](https://github.com/wkentaro/gdown).
+   2. Pseudo-GT for cars are updated. We add background disparity using depth completion for more robust training for the iDispNet, especially near the edge of segmentation mask.
+3. New trained models are released to produce better results.
+4. Easy download scripts are provided using [gdown](https://github.com/wkentaro/gdown).
 
 ## Setup dataset
 
