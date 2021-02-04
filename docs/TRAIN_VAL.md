@@ -63,7 +63,7 @@ Note that the current implementation cannot exit itself automatically, see [Note
 	sh scripts/car/vob/train_smrcnn.sh # This step cost ~1.5 hours using 4 GPUs.
     ```
 
-		For the pedestrian and cyclist categories, we provide 2D predictions, you can download them instead of training by yourself.
+    For the **pedestrian** and **cyclist** categories, we provide 2D predictions, you can download them instead of training by yourself.
 
     ```bash
 	sh scripts/download/model/pedestrian_2d.sh
@@ -134,5 +134,6 @@ For pedestrians and cyclists, we provide 2D predictions instead of trained 2D de
    ```bash
    pkill -e -9 python -u $USER
    ```
-If you encouter EOFError or share_memory error during training process using num_workers>0, just relaunch the training scripts with "SOLVER.LOAD_OPTIMIZER True SOLVER.LOAD_SCHEDULER True".
+    If you encouter EOFError or share_memory error during training process using num_workers>0, just relaunch the training scripts with "SOLVER.LOAD_OPTIMIZER True SOLVER.LOAD_SCHEDULER True".
+
 2. We suggest to use 8 GPUs with more than 12G memory each. If you don't have enough GPUs or your GPU memory is less than 12G, there are some alternatives. We provide a script to run inference with one GPU. For training, you can decrease the batch size and learning rate, and increase maximum iteration following [scheduling rules from Detectron](https://github.com/facebookresearch/Detectron/blob/master/configs/getting_started/tutorial_1gpu_e2e_faster_rcnn_R-50-FPN.yaml#L14-L30).
