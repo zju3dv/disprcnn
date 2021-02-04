@@ -63,7 +63,7 @@ Note that the current implementation cannot exit itself automatically, see [Note
 	sh scripts/car/vob/train_smrcnn.sh # This step cost ~1.5 hours using 4 GPUs.
     ```
 
-		For the **pedestrian** and **cyclist** categories, we provide 2D predictions, you can download them instead of training by yourself.
+		For the pedestrian and cyclist categories, we provide 2D predictions, you can download them instead of training by yourself.
 
     ```bash
 	sh scripts/download/model/pedestrian_2d.sh
