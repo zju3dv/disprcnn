@@ -1,4 +1,4 @@
-Update: New data, trained models, results and categories are being organized and will be released soon!
+Update on 2021.2.4: New data, trained models, results and categories have been released!
 # Disp R-CNN: Stereo 3D Object Detection via Shape Prior Guided Instance Disparity Estimation (CVPR 2020)
 
 This project contains the implementation of our CVPR 2020 paper [arxiv](https://arxiv.org/pdf/2004.03572.pdf).
