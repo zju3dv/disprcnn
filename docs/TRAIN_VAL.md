@@ -127,6 +127,25 @@ For pedestrians and cyclists, we provide 2D predictions instead of trained 2D de
    sh scripts/download/model/cyclist_2d.sh
    ```
 
+## Use predictions.pth
+We provide predictions.pth for the car category in case anyone cannot perform inference.
+Download them using the following commands.
+
+```bash
+sh scripts/download/predictions/car_vob.sh
+sh scripts/download/predictions/car_pob.sh
+```
+
+Evaluate using the provided prediction.pth using commands like this
+
+```bash
+python tools/test_net.py --config-file xxxx/rcnn.yaml --no_force_recompute
+```
+
+The '—no_force_recompute' flag will enable the engine to load predictions.pth instead of performing inference from scratch.
+
+You can also use [visualize.ipynb](../visualize.ipynb) to visualize the 3D bounding boxes and instance disparities.
+
 ## Notes
 
 1. Setting num_workers>0 could speed up training and inference by a large margin. However, due to some bugs in PyTorch, the training process will hang itself after finishing nearly all the iterations. You should interrupt the program manually by "Ctrl+C" when training stucks at the end. You can validate if the training is finished by checking the ETA (usually less than one minute) or iter (close to max_iter in the configs). If the GPU memory is not released after manual interrupting, use the following command to release GPU memory. This imperfection can be potentially fixed via switching the distributed launcher to [`mp.spawn`](https://github.com/facebookresearch/detectron2/blob/master/detectron2/engine/launch.py#L45).
