@@ -61,7 +61,7 @@ This repo is built based on the Mask R-CNN implementation from [maskrcnn-benchma
 The system architure figure is created with [Blender](https://www.blender.org/), feel free to reuse our [project file](https://mega.nz/file/Z1xhFSwD#tCYwKCGNaquv1pH6bbYe0hf_7AIs3yd53jg6_z3f_CU)! 
 
 ## Copyright
-This work is affliated with ZJU-SenseTime Joint Lab of 3D Vision, and its intellectual property belongs to SenseTime Group Ltd.
+This work is affiliated with ZJU-SenseTime Joint Lab of 3D Vision, and its intellectual property belongs to SenseTime Group Ltd.
 
 ```
 Copyright SenseTime. All Rights Reserved.
