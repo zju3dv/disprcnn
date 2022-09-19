@@ -2,9 +2,9 @@
 #define _GROUP_POINTS_GPU_H
 
 #include <torch/serialize/tensor.h>
+#include <vector>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
-#include <vector>
 
 
 int group_points_wrapper_fast(int b, int c, int n, int npoints, int nsample, 

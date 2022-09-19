@@ -1,9 +1,9 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cuda_utils.h"
 #include "group_points_gpu.h"
-
+#include "cuda_utils.h"
 
 __global__ void group_points_grad_kernel_fast(int b, int c, int n, int npoints, int nsample, 
     const float *__restrict__ grad_out, const int *__restrict__ idx, float *__restrict__ grad_points) {
