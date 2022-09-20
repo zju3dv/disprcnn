@@ -8,7 +8,7 @@
 #include <cuda_runtime_api.h>
 #include "interpolate_gpu.h"
 
-extern THCState *state;
+//extern THCState *state;
 
 
 void three_nn_wrapper_fast(int b, int n, int m, at::Tensor unknown_tensor, 
@@ -18,8 +18,8 @@ void three_nn_wrapper_fast(int b, int n, int m, at::Tensor unknown_tensor,
     float *dist2 = dist2_tensor.data<float>();
     int *idx = idx_tensor.data<int>();
 
-    cudaStream_t stream = THCState_getCurrentStream(state);
-    three_nn_kernel_launcher_fast(b, n, m, unknown, known, dist2, idx, stream);
+//    cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+    three_nn_kernel_launcher_fast(b, n, m, unknown, known, dist2, idx, c10::cuda::getCurrentCUDAStream());
 }
 
 
@@ -34,8 +34,8 @@ void three_interpolate_wrapper_fast(int b, int c, int m, int n,
     float *out = out_tensor.data<float>();
     const int *idx = idx_tensor.data<int>();
 
-    cudaStream_t stream = THCState_getCurrentStream(state);
-    three_interpolate_kernel_launcher_fast(b, c, m, n, points, idx, weight, out, stream);
+//    cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+    three_interpolate_kernel_launcher_fast(b, c, m, n, points, idx, weight, out, c10::cuda::getCurrentCUDAStream());
 }
 
 void three_interpolate_grad_wrapper_fast(int b, int c, int n, int m,
@@ -49,6 +49,6 @@ void three_interpolate_grad_wrapper_fast(int b, int c, int n, int m,
     float *grad_points = grad_points_tensor.data<float>();
     const int *idx = idx_tensor.data<int>();
 
-    cudaStream_t stream = THCState_getCurrentStream(state);
-    three_interpolate_grad_kernel_launcher_fast(b, c, n, m, grad_out, idx, weight, grad_points, stream);
+//    cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+    three_interpolate_grad_kernel_launcher_fast(b, c, n, m, grad_out, idx, weight, grad_points, c10::cuda::getCurrentCUDAStream());
 }
