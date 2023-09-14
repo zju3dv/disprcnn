@@ -1,7 +1,7 @@
-Update on 2021.2.4: New data, trained models, results and categories have been released! Old version data is not available now.
-# Disp R-CNN: Stereo 3D Object Detection via Shape Prior Guided Instance Disparity Estimation (CVPR 2020)
+Update on 2021.2.4: New data, trained models, results, and categories have been released! Old version data is not available now.
+# Disp R-CNN: Stereo 3D Object Detection via Shape Prior Guided Instance Disparity Estimation (CVPR 2020 and T-PAMI 2021)
 
-This project contains the implementation of our CVPR 2020 paper [arxiv](https://arxiv.org/pdf/2004.03572.pdf).
+This project contains the implementation of our paper [arxiv](https://arxiv.org/pdf/2004.03572.pdf).
 
 Authors: Jiaming Sun, Linghao Chen, Yiming Xie, Siyu Zhang, Qinhong Jiang, Xiaowei Zhou, Hujun Bao.
 
@@ -52,6 +52,16 @@ If you find this code useful for your research, please use the following BibTeX 
   author={Sun, Jiaming and Chen, Linghao and Xie, Yiming and Zhang, Siyu and Jiang, Qinhong and Zhou, Xiaowei and Bao, Hujun},
   booktitle={CVPR},
   year={2020}
+}
+@article{chen2021shape,
+  title={Shape prior guided instance disparity estimation for 3d object detection},
+  author={Chen, Linghao and Sun, Jiaming and Xie, Yiming and Zhang, Siyu and Shuai, Qing and Jiang, Qinhong and Zhang, Guofeng and Bao, Hujun and Zhou, Xiaowei},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume={44},
+  number={9},
+  pages={5529--5540},
+  year={2021},
+  publisher={IEEE}
 }
 ```
 
